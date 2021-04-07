@@ -1,0 +1,5 @@
+build/
+lib/
+.vscode/
+toolchains/
+compile_commands.json
