@@ -21,6 +21,10 @@ void GsInitGraph(unsigned short x_res, unsigned short y_res, unsigned short int1
         GsFatal("GsInitGraph(): Unknown graphics reset flag passed");
     }
 
+    // Prepare envs (but don't apply yet, as the framebuffer areas are defined by calling GsDefDispBuff)
+    SetDefDispEnv(&GsDISPENV, 0, 0, x_res, y_res);
+    SetDefDrawEnv(&GsDRAWENV, 0, 0, x_res, y_res);
+
     // Setup interlace
     if ((int1 & GsINTER) == GsINTER) {
         GsDISPENV.isinter = 1;
@@ -42,12 +46,10 @@ void GsInitGraph(unsigned short x_res, unsigned short y_res, unsigned short int1
         GsDISPENV.isrgb24 = 0;
     }
 
-    // TODO: Honor GTE/GPU offset
+    // Not sure whether setting this is what's expected here, but everyone online recommends it
+    GsDRAWENV.isbg = 1;
 
-    // Prepare envs
-    // TODO: Does this conflict with GsDefDispBuff
-    SetDefDispEnv(&GsDISPENV, 0, 0, x_res, y_res);
-    SetDefDrawEnv(&GsDRAWENV, 0, y_res, x_res, y_res);
+    // TODO: Honor GTE/GPU offset (once I figure out what Sony means by them)
 
     // TODO: Init GsIDMATRIX and GsIDMATRIX2
 }
@@ -57,16 +59,19 @@ void GsInit3D(void) {
     InitGeom();
     // Center the GTE to middle of screen
     gte_SetGeomOffset(GsDISPENV.screen.w / 2, GsDISPENV.screen.h / 2);
-    // Screen depth (FOV)
+    // Set screen depth (FOV)
     gte_SetGeomScreen(GsDISPENV.screen.w / 2);
     // Set ambient light color to white
     gte_SetBackColor(63, 63, 63);
 }
 
-void GsSetWorkBase(PACKET *base_addr) { GsOUT_PACKET_P = base_addr; }
+void GsSetWorkBase(PACKET *base_addr) {
+    GsOUT_PACKET_P = base_addr;
+    GsOUT_PACKET_CURSOR = base_addr;
+}
 
 PACKET *GsGetWorkBase(void) {
-    // TODO: Waste less RAM
+    PACKET *old_cursor = GsOUT_PACKET_CURSOR;
     GsOUT_PACKET_CURSOR += GsMAX_GPU_PACKET_SIZE;
-    return GsOUT_PACKET_CURSOR;
+    return old_cursor;
 }

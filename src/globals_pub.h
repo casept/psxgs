@@ -5,9 +5,9 @@
 
 #include "types_pub.h"
 
-// The draw env for the back buffer
+// The libgte draw environment
 extern DRAWENV GsDRAWENV;
-// The disp env for the back buffer
+// The libgte display environment
 extern DISPENV GsDISPENV;
 
 // The X coordinate of the double buffers
@@ -26,7 +26,7 @@ extern MATRIX GsIDMATRIX2;
 
 // Start of the GPU packet storage area
 extern PACKET* GsOUT_PACKET_P;
-// Last element currently used in the GPU packet storage area
+// First currently free space in the GPU packet storage area
 extern PACKET* GsOUT_PACKET_CURSOR;
 
 #endif

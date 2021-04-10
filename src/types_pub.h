@@ -49,15 +49,15 @@ typedef struct {
 // Header of a primitive ordering table.
 typedef struct {
     // This field's name is a bit misleading. It actually refers to the Z-precision
-    // of the table, not the actual number of entries.
+    // of the table (in bits), not the actual number of entries.
     unsigned long length;
-    // First primitive to be drawn
+    // Pointer to beginning of table in memory
     GsOT_TAG *org;
     // Unused, only here to remain compatible with Sony's definition
     unsigned long offset;
     // Specifies the priority of where to sort this table
     unsigned long point;
-    // Next primitive to be drawn
+    // Pointer to table entry at which drawing starts
     GsOT_TAG *tag;
 } GsOT;
 

@@ -7,6 +7,7 @@
 #include <psxgpu.h>
 #include <psxgs.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 // Include the data by using the GAS .incbin directive.
 // In a real game, you'd probably want to load from disk instead.
@@ -21,7 +22,7 @@ extern __attribute__((aligned(16))) unsigned long Triangle_tmd[];
 // The library generates GPU primitive command packets and needs
 // a place to store them. This is the space where that happens.
 // There are 2 packet buffers to enable processing the next frame on the CPU+GTE while the GPU is still drawing.
-PACKET Gpu_packets[2][PACKET_AREA_SIZE];
+PACKET __attribute__((aligned(32))) Gpu_packets[2][PACKET_AREA_SIZE];
 
 // The ordering table is where references to GPU packets in the GPU packet buffer are stored.
 // This is just a handle to the table, the actual table is defined below.
@@ -42,22 +43,22 @@ GsOT_TAG OTs[2][OT_SIZE];
 GsDOBJ2 Triangle_handle;
 
 // All the tasks that typically have to be performed only once on program start.
-void init_graphics() {
+void init_graphics(void) {
     // This sample assumes an NTSC machine.
     // However, customizing it for PAL is just a matter of changing the resolution
     // where needed.
     SetVideoMode(MODE_NTSC);
     // Initialize the library's core data structures and the hardware.
-    GsInitGraph(640, 480, GsINTER | GsOFSGPU | GsRESET0, GsDITHER, GsVRAM16BIT);
+    GsInitGraph(320, 240, GsINTER | GsOFSGPU | GsRESET0, GsDITHER, GsVRAM16BIT);
     // Configure the coordinates of double buffers in VRAM.
-    // With this setup, the buffer resides in the upper-left column of VRAM.
-    GsDefDispBuff(0, 0, 0, 480);
+    // With this setup, the buffers reside in the upper-left column of VRAM.
+    GsDefDispBuff(0, 0, 0, 240);
     // Initialize data structures needed for 3D functionality,
     // such as the default light matrix.
     // Also initializes the GTE.
     GsInit3D();
 
-    // Link the OT handles with the actual space where the primitive references are stored.
+    // Link the OT handles with the actual tables.
     OT_handles[0].length = OT_PRECISION;
     OT_handles[0].org = OTs[0];
     OT_handles[1].length = OT_PRECISION;
@@ -76,28 +77,30 @@ int main(void) {
 
     // Do everything that has to be done each frame (at least in a real game where the scene actually changes).
     while (true) {
+        // Swap the front and back buffers.
+        GsSwapDispBuffer();
+
         // Figure out which of the buffers is currently the back (AKA drawing) buffer.
         const int back_buffer = GsGetActiveBuffer();
         // Tell the library to put new GPU primitives into the back packet buffer.
         GsSetWorkBase(Gpu_packets[back_buffer]);
         // Clear the ordering table so that new primitives can be added.
         GsClearOT(0, 0, &OT_handles[back_buffer]);
+        // Sort a packet ordering the GPU to clear the screen before doing anything else.
+        GsSortClear(63, 63, 63, &OT_handles[back_buffer]);
+
         // Perform perspective transformations and sort the triangle to the OT.
         // FIXME: Currently, the scratchpad is not used. Fix address once it is.
         GsSortObject4(&Triangle_handle, &OT_handles[back_buffer], OT_PRECISION, 0);
 
-        // Wait for the GPU to finish drawing.
-        DrawSync(0);
-        // Wait for VSync.
-        VSync(0);
-
-        // Swap the front and back buffers.
-        GsSwapDispBuffer();
-        // Sort a packet ordering the GPU to clear the screen before doing anything else.
-        GsSortClear(0x0, 0x0, 0x0, &OT_handles[back_buffer]);
         // Start drawing the OT to the back buffer. This function runs asynchronously, meaning that it returns before
         // drawing is actually done.
         GsDrawOT(&OT_handles[back_buffer]);
+
+        // This is where you would usually perform non-graphics game logic while letting the GPU work in the background.
+        // Since we don't have any, we simply wait on the drawing to finish and a new frame to begin.
+        DrawSync(0);
+        VSync(0);
     }
     // The program should never terminate, this is just here to make the compiler happy.
     return 0;

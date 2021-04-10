@@ -1,3 +1,5 @@
+#include "tmd.h"
+
 #include <psxgpu.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -46,7 +48,7 @@ void GsMapModelingData(unsigned long *p) {
 
 // Return a pointer to the nth object in the given TMD.
 inline static GsTMDObject *GsLookupTmdObj(const unsigned long *tmd, const size_t n) {
-    unsigned long *tmd_after_hdr = (unsigned long *)((size_t)tmd + sizeof(GsTMDHeader));
+    unsigned long *tmd_after_hdr = (unsigned long *)((size_t)tmd + (size_t)sizeof(GsTMDHeader));
     GsTMDObject *obj_table = (GsTMDObject *)tmd_after_hdr;
     return obj_table + n;
 }
@@ -64,7 +66,6 @@ inline static GsTMDVertex GsLookupTmdVert(const GsTMDObject *obj, const size_t n
 }
 
 void GsLinkObject4(unsigned long tmd, GsDOBJ2 *obj_base, int n) {
-    // TODO: Is it our responsibility to init the rest of the fields?
     GsTMDObject *obj = GsLookupTmdObj((unsigned long *)tmd, (size_t)n);
     obj_base->tmd = (unsigned long *)obj;
 }
@@ -95,34 +96,65 @@ inline static GsTMDPF3 GsParsePolyF3Primitive(const unsigned long *prim_data) {
 }
 
 // Sort an untextured triangle TMD primitive into the given OT
-inline static void GsSortObject4PolyF3(const GsTMDObject *tmd, GsOT *otp, __attribute__((unused)) const int shift) {
-    unsigned long *const tmd_prims = tmd->primtop;
-    for (unsigned long i = 0; i < tmd->primn; i++) {
-        GsTMDPF3 tmd_prim = GsParsePolyF3Primitive(tmd_prims + i);
+inline static void GsSortObject4PolyF3(const unsigned long *prim, const GsTMDObject *obj, GsOT *otp,
+                                       __attribute__((unused)) const int shift) {
+    GsTMDPF3 tmd_prim = GsParsePolyF3Primitive(prim);
 #ifdef DEBUG
-        GsDumpTMDPF3(&tmd_prim);
+    GsDumpTMDPF3(&tmd_prim);
 #endif
-        // TODO: Perspective transform
-        // TODO: Light calc
-        // TODO: Implement polygon division (in scratchpad)
+    // TODO: Perspective transform
+    // TODO: Light calc
+    // TODO: Implement polygon division (in scratchpad)
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-align"
-        POLY_F3 *gpu_packet = (POLY_F3 *)GsGetWorkBase();
+    POLY_F3 *gpu_packet = (POLY_F3 *)GsGetWorkBase();
 #pragma GCC diagnostic pop
-        // Copy the relevant attributes
-        setPolyF3(gpu_packet);
-        setRGB0(gpu_packet, tmd_prim.r0, tmd_prim.g0, tmd_prim.b0);
-        const GsTMDVertex vert0 = GsLookupTmdVert(tmd, tmd_prim.vert0);
-        const GsTMDVertex vert1 = GsLookupTmdVert(tmd, tmd_prim.vert1);
-        const GsTMDVertex vert2 = GsLookupTmdVert(tmd, tmd_prim.vert2);
-        setXY3(gpu_packet, vert0.vx, vert0.vy, vert1.vx, vert1.vy, vert2.vx, vert2.vy);
+    // Copy the relevant attributes
+    setPolyF3(gpu_packet);
+    setRGB0(gpu_packet, tmd_prim.r0, tmd_prim.g0, tmd_prim.b0);
+    const GsTMDVertex vert0 = GsLookupTmdVert(obj, tmd_prim.vert0);
+    const GsTMDVertex vert1 = GsLookupTmdVert(obj, tmd_prim.vert1);
+    const GsTMDVertex vert2 = GsLookupTmdVert(obj, tmd_prim.vert2);
+    setXY3(gpu_packet, vert0.vx, vert0.vy, vert1.vx, vert1.vy, vert2.vx, vert2.vy);
 
-        // Sort into OT
-        // TODO: Is using org here correct?
-        // TODO: Z-sort
-        AddPrim((unsigned int *)&otp->org, gpu_packet);
+    // Sort into OT
+    // TODO: Is using org here correct?
+    // TODO: Z-sort
+    AddPrim((unsigned int *)otp->org, gpu_packet);
+}
+
+// Figure out what kind of primitive we're dealing with
+static GsTMDPrimitiveKind GsParseTMDPrimitiveKind(const unsigned long *tmd_prim) {
+    const GsTMDPacketHeader hdr = GsParseTMDPacketHeader(*tmd_prim);
+#ifdef DEBUG
+    printf("Determining kind of TMD packet with header: ");
+    GsDumpTMDPacketHeader(&hdr);
+#endif
+
+    // What sort of TMD primitive are we dealing with?
+    switch (hdr.mode & TMD_HDR_MODE_MASK) {
+        case TMD_MODE_POLY:
+            if ((hdr.mode & TMD_OPT_QUAD) == TMD_OPT_QUAD) {
+                GsFatal("TMD: quad primitive not implemented");
+            } else {
+                // TODO: Check if flat
+                // TODO: Check if textured etc.
+                return GS_TMD_PRIMITIVE_F3;
+            }
+            break;
+        case TMD_MODE_LINE:
+            GsFatal("TMD: line primitive not implemented");
+            break;
+        case TMD_MODE_SPRT:
+            GsFatal("TMD: sprite primitive not implemented");
+            break;
+        default:
+            printf("[psxgs] Header mode field: 0x%X\n", hdr.mode);
+            GsFatal("TMD: invalid primitive");
+            break;
     }
+    return GS_TMD_PRIMITIVE_UNKNOWN;
 }
 
 void GsSortObject4(GsDOBJ2 *objp, GsOT *otp, int shift, __attribute__((unused)) unsigned long *scratch) {
@@ -136,34 +168,18 @@ void GsSortObject4(GsDOBJ2 *objp, GsOT *otp, int shift, __attribute__((unused)) 
     const unsigned long *cursor = tmd->primtop;
 
     for (unsigned long i = 0; i < tmd->primn; i++) {
-        GsTMDPacketHeader hdr = GsParseTMDPacketHeader(*cursor);
-#ifdef DEBUG
-        GsDumpTMDPacketHeader(&hdr);
-#endif
-
-        // What sort of TMD primitive are we dealing with?
-        switch (hdr.mode & TMD_HDR_MODE_MASK) {
-            case TMD_MODE_POLY:
-                if ((hdr.mode & TMD_OPT_QUAD) == TMD_OPT_QUAD) {
-                    GsFatal("GsSortObject4(): Quad primitive not implemented");
-                } else {
-                    // Handle untextured triangle
-                    GsSortObject4PolyF3(tmd, otp, shift);
-                }
+        switch (GsParseTMDPrimitiveKind(cursor)) {
+            case GS_TMD_PRIMITIVE_F3:
+                // Handle untextured flat triangle
+                GsSortObject4PolyF3(cursor, tmd, otp, shift);
                 break;
-            case TMD_MODE_LINE:
-                GsFatal("GsSortObject4(): Line primitive not implemented");
-                break;
-            case TMD_MODE_SPRT:
-                GsFatal("GsSortObject4(): Sprite primitive not implemented");
-                break;
+            case GS_TMD_PRIMITIVE_UNKNOWN:
             default:
-                printf("[psxgs] Header mode field: 0x%X\n", hdr.mode);
                 GsFatal("GsSortObject4(): Invalid primitive");
                 break;
         }
-
         // Advance the cursor to the next primitive
+        const GsTMDPacketHeader hdr = GsParseTMDPacketHeader(*cursor);
         cursor += (hdr.ilen + 1);  // +1 because ilen does not include the header.
     }
 }

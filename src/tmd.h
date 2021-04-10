@@ -71,4 +71,11 @@ typedef struct {
     short vz;
 } GsTMDVertex;
 
+// The various TMD primitive types.
+typedef enum {
+    // Flat, untextured, solid colored triangle
+    GS_TMD_PRIMITIVE_F3,
+    // Unknown primitive
+    GS_TMD_PRIMITIVE_UNKNOWN,
+} GsTMDPrimitiveKind;
 #endif

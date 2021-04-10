@@ -24,8 +24,8 @@ DUMMY_ISO	= dummy.iso
 MAKEFILE = Makefile
 
 # Searches for C and asm files in local directory.
-CFILES		= $(notdir $(wildcard *.c))
-AFILES		= $(notdir $(wildcard *.s))
+CFILES		= $(addprefix src/,$(notdir $(wildcard src/*.c)))
+AFILES		= $(addprefix src/,$(notdir $(wildcard src/*.s)))
 
 # Determine object files.
 OFILES		= $(addprefix build/,$(CFILES:.c=.o)) \
@@ -68,8 +68,8 @@ $(TARGET_EXE): $(TARGET_ELF)
 	elf2x -q $(TARGET_ELF) $(TARGET_EXE)
 
 # This is just a convenience target. Replace with whathever invocation is appropriate for your emulator.
-run: $(TARGET_EXE) $(DUMMY_ISO)
-	pcsxr -gdb -psxout -nogui -cdfile $(DUMMY_ISO) $(TARGET_EXE)
+run: $(TARGET_ELF) $(DUMMY_ISO)
+	pcsxr -gdb -psxout -nogui -cdfile $(DUMMY_ISO) $(TARGET_ELF)
 
 clean:
 	rm -rf build $(TARGET_ELF) $(TARGET_EXE)

@@ -1,5 +1,9 @@
 build/
 lib/
+*.elf
+*.exe
+*.mcd
 .vscode/
 toolchains/
 compile_commands.json
+pcsx.json

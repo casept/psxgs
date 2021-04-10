@@ -13,7 +13,8 @@ void GsSortClear(unsigned char r, unsigned char g, unsigned char b, GsOT* otp) {
     setXY0(fill, 0, 0);
     setWH(fill, (unsigned short)GsDISPENV.screen.w, (unsigned short)GsDISPENV.screen.h);
     setRGB0(fill, r, g, b);
-    AddPrim((unsigned int*)otp->org, fill);
+    // We want to sort this at the very top
+    AddPrim((unsigned int*)otp->tag, fill);
 }
 
 void GsDefDispBuff(unsigned short x0, unsigned short y0, unsigned short x1, unsigned short y1) {
@@ -21,22 +22,30 @@ void GsDefDispBuff(unsigned short x0, unsigned short y0, unsigned short x1, unsi
     PSDBASEY[0] = (short)y0;
     PSDBASEX[1] = (short)x1;
     PSDBASEY[1] = (short)y1;
-    // TODO: Set disp/draw env
+
+    SetDefDrawEnv(&GsDRAWENV, PSDBASEX[0], PSDBASEY[0], GsDRAWENV.clip.w, GsDRAWENV.clip.h);
+    SetDefDispEnv(&GsDISPENV, PSDBASEX[1], PSDBASEY[1], GsDISPENV.disp.w, GsDISPENV.disp.h);
+    PutDispEnv(&GsDISPENV);
+    PutDrawEnv(&GsDRAWENV);
 }
 
 void GsSwapDispBuffer(void) {
-    // Sets display starting address in VRAM
-    // TODO: Cancel blanking
+    // Set the DISPENV to display the old back buffer
+    SetDefDispEnv(&GsDISPENV, PSDBASEX[PSDIDX], PSDBASEY[PSDIDX], GsDISPENV.disp.w, GsDISPENV.disp.h);
+    PutDispEnv(&GsDISPENV);
 
-    // Set double buffer index
-    if (PSDIDX == 0) {
-        PSDIDX = 1;
-    } else {
-        PSDIDX = 0;
-    }
-    // Switch two-dimensional clipping
-    // Set libgte or libgpu offset
-    // Set libgs offset
+    // Swap double buffer index
+    PSDIDX = !PSDIDX;
+
+    // Set the DRAWENV to draw into the new back buffer
+    SetDefDrawEnv(&GsDRAWENV, PSDBASEX[PSDIDX], PSDBASEY[PSDIDX], GsDRAWENV.clip.w, GsDRAWENV.clip.h);
+    PutDrawEnv(&GsDRAWENV);
+
+    // TODO: Set libgte or libgpu offset (?)
+    // TODO: Set libgs offset (?)
+
+    // Enable display
+    SetDispMask(1);
 }
 
 int GsGetActiveBuffer(void) { return (int)PSDIDX; }
