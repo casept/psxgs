@@ -24,9 +24,6 @@ void GsDefDispBuff(unsigned short x0, unsigned short y0, unsigned short x1, unsi
 // Initialize the given ordering table
 void GsClearOT(unsigned short offset, unsigned short point, GsOT *otp);
 
-// Add a command to the OT telling the GPU to clear the screen to the given color
-void GsSortClear(unsigned char r, unsigned char g, unsigned char b, GsOT *otp);
-
 // Swap the front and back buffers
 void GsSwapDispBuffer(void);
 
@@ -42,5 +39,10 @@ void GsSortObject4(GsDOBJ2 *objp, GsOT *otp, int shift, unsigned long *scratch);
 
 // Process the GPU commands registered in the given ordering table. Runs asynchronously.
 void GsDrawOT(GsOT *ot);
+
+// Add a command to the OT telling the GPU to clear the screen to the given color
+void GsSortClear(unsigned char r, unsigned char g, unsigned char b, GsOT *otp);
+// Add a command to the OT telling the GPU to draw the given box
+void GsSortBoxFill(GsBOXF *bp, GsOT *ot, unsigned short pri);
 
 #endif

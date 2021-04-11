@@ -49,7 +49,7 @@ void init_graphics(void) {
     // where needed.
     SetVideoMode(MODE_NTSC);
     // Initialize the library's core data structures and the hardware.
-    GsInitGraph(320, 240, GsINTER | GsOFSGPU | GsRESET0, GsDITHER, GsVRAM16BIT);
+    GsInitGraph(320, 240, GsNONINTER | GsOFSGPU | GsRESET0, GsDITHER, GsVRAM16BIT);
     // Configure the coordinates of double buffers in VRAM.
     // With this setup, the buffers reside in the upper-left column of VRAM.
     GsDefDispBuff(0, 0, 0, 240);
@@ -87,7 +87,7 @@ int main(void) {
         // Clear the ordering table so that new primitives can be added.
         GsClearOT(0, 0, &OT_handles[back_buffer]);
         // Sort a packet ordering the GPU to clear the screen before doing anything else.
-        GsSortClear(63, 63, 63, &OT_handles[back_buffer]);
+        GsSortClear(0, 0, 0, &OT_handles[back_buffer]);
 
         // Perform perspective transformations and sort the triangle to the OT.
         // FIXME: Currently, the scratchpad is not used. Fix address once it is.

@@ -121,7 +121,7 @@ inline static void GsSortObject4PolyF3(const unsigned long *prim, const GsTMDObj
     // Sort into OT
     // TODO: Is using org here correct?
     // TODO: Z-sort
-    AddPrim((unsigned int *)otp->org, gpu_packet);
+    AddPrim((unsigned int *)&otp->org[0], gpu_packet);
 }
 
 // Figure out what kind of primitive we're dealing with

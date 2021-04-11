@@ -61,8 +61,20 @@ typedef struct {
     GsOT_TAG *tag;
 } GsOT;
 
+// Rectangle/box primitive.
+typedef struct {
+    // Various flags, see Sony manual for details.
+    unsigned long attribute;
+    // Top-left of the rectangle, in screen coordinates.
+    short x, y;
+    // Size of the rectangle, as width and height.
+    unsigned short w, h;
+    // Color of the rectangle.
+    unsigned char r, g, b;
+} GsBOXF;
+
 // Supposed to be a GPU primitive packet, but Sony defines it like this
-// (which doesn't make sense, as packets are variable size and way larger than a char)
+// (which doesn't make sense, as packets are variable size and way larger than a char).
 typedef unsigned char PACKET;
 
 #endif
