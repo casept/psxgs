@@ -3,7 +3,7 @@ lib/
 *.elf
 *.exe
 *.mcd
-.vscode/
+*.log
 toolchains/
 compile_commands.json
 pcsx.json

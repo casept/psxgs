@@ -1,0 +1,45 @@
+{
+	// Use IntelliSense to learn about possible attributes.
+	// Hover to view descriptions of existing attributes.
+	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Triangle Sample",
+			"type": "gdb",
+			"request": "launch",
+			"target": "samples/triangle/triangle.elf",
+			"cwd": "${workspaceRoot}",
+			"gdbpath": "mipsel-unknown-elf-gdb",
+			"autorun": [
+				"set remote interrupt-sequence Ctrl-C",
+				"target remote 127.0.0.1:3333",
+				"set substitute-path /home/user/dev/psxgs .",
+				"monitor reset shellhalt",
+				"load ./samples/triangle/triangle.elf",
+				"tbreak main",
+				"continue",
+			],
+			"valuesFormatting": "parseText"
+		},
+		{
+			"name": "Triangle Sample (Clean Build)",
+			"type": "gdb",
+			"request": "launch",
+			"target": "${workspaceRoot}/samples/triangle/triangle.elf",
+			"cwd": "${workspaceRoot}",
+			"gdbpath": "mipsel-unknown-elf-gdb",
+			"autorun": [
+				"set remote interrupt-sequence Ctrl-C",
+				"target remote 127.0.0.1:3333",
+				"set substitute-path ${workspaceRoot} .",
+				"monitor reset shellhalt",
+				"load ${workspaceRoot}/samples/triangle/triangle.elf",
+				"tbreak main",
+				"continue",
+			],
+			"valuesFormatting": "parseText",
+			"preLaunchTask": "cleanBuildAll"
+		},
+	]
+}
