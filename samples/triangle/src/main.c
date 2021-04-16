@@ -42,6 +42,9 @@ GsOT_TAG OTs[2][OT_SIZE];
 // Each 2D or 3D object instantiated by libgs can be interacted with using a handle. This is the handle to our triangle.
 GsDOBJ2 Triangle_handle;
 
+// This is a handle for the libgs viewpoint/camera.
+GsVIEW2 view = {{{{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, {0, 0, 0}}, &WORLD};
+
 // All the tasks that typically have to be performed only once on program start.
 void init_graphics(void) {
     // This sample assumes an NTSC machine.
@@ -63,6 +66,12 @@ void init_graphics(void) {
     OT_handles[0].org = OTs[0];
     OT_handles[1].length = OT_PRECISION;
     OT_handles[1].org = OTs[1];
+
+    // The view's coordinates are world coordinates.
+    view.super = &WORLD;
+    // Register it as the default viewpoint.
+    GsSetView2(&view);
+    // TODO: GsSetProjection
 
     // Remap the addresses in the TMD to point to where it actually is in process memory.
     GsMapModelingData(Triangle_tmd);
@@ -91,7 +100,7 @@ int main(void) {
 
         // Perform perspective transformations and sort the triangle to the OT.
         // FIXME: Currently, the scratchpad is not used. Fix address once it is.
-        GsSortObject4(&Triangle_handle, &OT_handles[back_buffer], OT_PRECISION, 0);
+        GsSortObject4(&Triangle_handle, &OT_handles[back_buffer], 14 - OT_PRECISION, 0);
 
         // Start drawing the OT to the back buffer. This function runs asynchronously, meaning that it returns before
         // drawing is actually done.

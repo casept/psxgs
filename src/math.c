@@ -12,3 +12,14 @@ int GsIpow(int base, int exp) {
     }
     return result;
 }
+
+long GsLpow(long base, long exp) {
+    long result = 1;
+    while (true) {
+        if (exp & 1) result *= base;
+        exp >>= 1;
+        if (!exp) break;
+        base *= base;
+    }
+    return result;
+}

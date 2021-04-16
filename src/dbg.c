@@ -16,9 +16,8 @@ void GsFatal(const char *msg) {
  */
 
 void GsDumpTMDStruct(const GsTMDObject *t) {
-    printf(
-        "[psxgs] GsTMDObject: {vertop: 0x%X vern: %lu nortop: 0x%X norn: %lu primtop: 0x%X primn: %lu scale: 0x%X}\n",
-        t->vertop, t->vern, t->nortop, t->norn, t->primtop, t->primn);
+    printf("[psxgs] GsTMDObject: {vertop: 0x%X vern: %lu nortop: 0x%X norn: %lu primtop: 0x%X primn: %lu scale: %d}\n",
+           t->vertop, t->vern, t->nortop, t->norn, t->primtop, t->primn, t->scale);
 }
 
 void GsDumpTMDHeader(const GsTMDHeader *h) {

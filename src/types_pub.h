@@ -21,11 +21,11 @@ typedef struct GsCOORDINATE2 {
     MATRIX coord;
     // Result of multiplying this with WORLD
     MATRIX workm;
-    // Rotation, scale, transform params (Only relevant for TOD animation)
+    // Rotation, scale, transform params (Used only for TOD animation)
     GsCOORD2PARAM *param;
     // Pointer to the superior coordinate system (typically to WORLD)
     struct GsCOORDINATE2 *super;
-    // Unused, only here to remain compatible with Sony's definition
+    // Unimplemented by Sony, only here to remain compatible with Sony's definition
     struct GsCOORDINATE2 *sub;
 } GsCOORDINATE2;
 
@@ -39,6 +39,7 @@ typedef struct {
     unsigned long id;
 } GsDOBJ2;
 
+// An object sorting table entry.
 typedef struct {
     // The 24 LSB of pointer to next OT entry (which is also a GsOT_TAG)
     unsigned p : 24;
@@ -76,5 +77,25 @@ typedef struct {
 // Supposed to be a GPU primitive packet, but Sony defines it like this
 // (which doesn't make sense, as packets are variable size and way larger than a char).
 typedef unsigned char PACKET;
+
+// A viewpoint/camera (simple version, doesn't support having a reference point).
+typedef struct {
+    // The viewpoint's world-to-screen matrix.
+    MATRIX view;
+    // The coordinate system of the viewpoint.
+    GsCOORDINATE2 *super;
+} GsVIEW2;
+
+// A viewpoint/camera (more complex version).
+typedef struct {
+    // Viewpoint's coordinates in the super coordinate system.
+    long vpx, vpy, vpz;
+    // Reference point's coordinates in the super coordinate system.
+    long vrx, vry, vrz;
+    // The screen's inclination on the Z axis on the line between the viewpoint and reference point (4096~1 degree).
+    long rz;
+    // The coordinate system to which all the structure's coordinates are relative to.
+    GsCOORDINATE2 *super;
+} GsRVIEW2;
 
 #endif

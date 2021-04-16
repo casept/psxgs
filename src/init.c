@@ -46,9 +46,6 @@ void GsInitGraph(unsigned short x_res, unsigned short y_res, unsigned short int1
         GsDISPENV.isrgb24 = 0;
     }
 
-    // Not sure whether setting this is what's expected here, but everyone online recommends it
-    GsDRAWENV.isbg = 1;
-
     // TODO: Honor GTE/GPU offset (once I figure out what Sony means by them)
 
     // TODO: Init GsIDMATRIX and GsIDMATRIX2
@@ -58,9 +55,9 @@ void GsInit3D(void) {
     // Initialize GTE
     InitGeom();
     // Center the GTE to middle of screen
-    gte_SetGeomOffset(GsDISPENV.screen.w / 2, GsDISPENV.screen.h / 2);
+    gte_SetGeomOffset(GsDISPENV.disp.w / 2, GsDISPENV.disp.h / 2);
     // Set screen depth (FOV)
-    gte_SetGeomScreen(GsDISPENV.screen.w / 2);
+    gte_SetGeomScreen(GsDISPENV.disp.w / 2);
     // Set ambient light color to white
     gte_SetBackColor(63, 63, 63);
 }

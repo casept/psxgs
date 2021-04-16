@@ -14,7 +14,6 @@ void GsInit3D(void);
 
 // Set the address of the area reserved for GPU packet buffering
 void GsSetWorkBase(PACKET *base_addr);
-
 // Return pointer to next free space in GPU packet buffer
 PACKET *GsGetWorkBase(void);
 
@@ -44,5 +43,14 @@ void GsDrawOT(GsOT *ot);
 void GsSortClear(unsigned char r, unsigned char g, unsigned char b, GsOT *otp);
 // Add a command to the OT telling the GPU to draw the given box
 void GsSortBoxFill(GsBOXF *bp, GsOT *ot, unsigned short pri);
+
+// Initialize base with super
+void GsInitCoordinate2(GsCOORDINATE2 *super, GsCOORDINATE2 *base);
+/*
+ Set the given viewpoint as the default.
+ Must be called whenever it changes.
+ Returns 0 on success, 1 on failure.
+ */
+int GsSetView2(GsVIEW2 *pv);
 
 #endif
