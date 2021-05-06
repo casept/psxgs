@@ -1,0 +1,34 @@
+From 9208a03be0b6906e29c7f136b8acde086f8d56f1 Mon Sep 17 00:00:00 2001
+From: casept <davids.paskevics@gmail.com>
+Date: Thu, 6 May 2021 12:39:20 +0200
+Subject: [PATCH] Fix Makefile
+
+---
+ Makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index aec0fa9..90c897f 100644
+--- a/Makefile
++++ b/Makefile
+@@ -10,7 +10,7 @@ PACKAGES := glfw3 libavcodec libavformat libavutil libswresample libuv sdl2 zlib
+ 
+ LOCALES := fr
+ 
+-CXXFLAGS += -std=c++2a
++CXXFLAGS += -std=c++2a -Wno-format-security
+ CPPFLAGS += `pkg-config --cflags $(PACKAGES)`
+ CPPFLAGS += -Isrc
+ CPPFLAGS += -Ithird_party
+@@ -52,7 +52,7 @@ ifeq ($(UNAME_S),Darwin)
+     CPPFLAGS += -stdlib=libc++
+ endif
+ 
+-LDFLAGS += `pkg-config --libs $(PACKAGES)`
++LDFLAGS += -lpthread `pkg-config --libs $(PACKAGES)`
+ 
+ ifeq ($(UNAME_S),Darwin)
+     LDFLAGS += -lc++ -framework GLUT -framework OpenGL -framework CoreFoundation 
+-- 
+2.29.3
+

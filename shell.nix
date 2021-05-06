@@ -6,6 +6,7 @@ let
   flawfinder = (pkgs.callPackage ./nix/pkgs/flawfinder { });
   lizard = (pkgs.callPackage ./nix/pkgs/lizard { });
   pcsxr-gdb = (pkgs.callPackage ./nix/pkgs/pcsxr-gdb { });
+  pcsx-redux = (pkgs.callPackage ./nix/pkgs/pcsx-redux { });
   mkpsxiso = (pkgs.callPackage ./nix/pkgs/mkpsxiso { });
 in pkgs.mkShell {
   buildInputs = [
@@ -17,6 +18,7 @@ in pkgs.mkShell {
     pkgs.clang-tools
     pkgs.cppcheck
     pkgs.include-what-you-use
+    pkgs.python3
     flawfinder
     lizard
     # Dependencies of PSn00bSDK tooling
@@ -26,5 +28,6 @@ in pkgs.mkShell {
     mkpsxiso
     # Emulator for running samples
     pcsxr-gdb
+    pcsx-redux
   ];
 }
