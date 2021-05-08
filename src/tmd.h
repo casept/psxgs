@@ -67,10 +67,35 @@ typedef struct {
     unsigned short vert2;
 } GsTMDPF3;
 
+// Flat (untextured) quad TMD primitive packet.
+typedef struct {
+    GsTMDPacketHeader hdr;
+    // Red
+    unsigned char r0;
+    // Green
+    unsigned char g0;
+    // Blue
+    unsigned char b0;
+    // Identical to mode in the header
+    unsigned char mode_copy;
+    // Offset from start of object's normals to 0th normal
+    unsigned short norm0;
+    // Offset from start of object's vertices to 0th vertex
+    unsigned short vert0;
+    // Offset from start of object's vertices to 1st vertex
+    unsigned short vert1;
+    // Offset from start of object's vertices to 2nd vertex
+    unsigned short vert2;
+    // Offset from start of object's vertices to 3rd vertex
+    unsigned short vert3;
+} GsTMDPF4;
+
 // The various TMD primitive types.
 typedef enum {
     // Flat, untextured, solid colored triangle
     GS_TMD_PRIMITIVE_F3,
+    // Flat, untextured, solid colored quad
+    GS_TMD_PRIMITIVE_F4,
     // Unknown primitive
     GS_TMD_PRIMITIVE_UNKNOWN,
 } GsTMDPrimitiveKind;
@@ -85,6 +110,8 @@ SVECTOR GsLookupTmdNorm(const GsTMDObject *obj, const size_t n);
 GsTMDPacketHeader GsParseTMDPacketHeader(const unsigned long hdr_int);
 // Parse an untextured triangle TMD primitive.
 GsTMDPF3 GsParsePolyF3Primitive(const unsigned long *prim_data);
+// Parse an untextured quad TMD primitive.
+GsTMDPF4 GsParsePolyF4Primitive(const unsigned long *prim_data);
 // Figure out what kind of primitive we're dealing with.
 GsTMDPrimitiveKind GsParseTMDPrimitiveKind(const unsigned long *tmd_prim);
 

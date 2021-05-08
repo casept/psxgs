@@ -70,11 +70,11 @@ inline static void GsSortObject4PolyF3(__attribute__((unused)) const GsCOORDINAT
     setPolyF3(pol3);
 
     // TODO: Light calc
-    setRGB0(pol3, tmd_prim.r0, tmd_prim.g0, tmd_prim.b0);
+    gte_ldrgb(&tmd_prim.r0);
 
     // Configure GTE
     MATRIX mtx;
-    SVECTOR rot = {0};
+    SVECTOR rot = {1, 1, 1, 0};
     RotMatrix(&rot, &mtx);
     // FIXME: Should probably be based on coord system in relation to world
     VECTOR pos = {0, 0, 0};
@@ -83,9 +83,9 @@ inline static void GsSortObject4PolyF3(__attribute__((unused)) const GsCOORDINAT
     gte_SetTransMatrix(&mtx);
 
     // Load verts into GTE
-    const SVECTOR vert0 = GsLookupTmdVert(obj, tmd_prim.vert0);
-    const SVECTOR vert1 = GsLookupTmdVert(obj, tmd_prim.vert1);
-    const SVECTOR vert2 = GsLookupTmdVert(obj, tmd_prim.vert2);
+    SVECTOR vert0 = GsLookupTmdVert(obj, tmd_prim.vert0);
+    SVECTOR vert1 = GsLookupTmdVert(obj, tmd_prim.vert1);
+    SVECTOR vert2 = GsLookupTmdVert(obj, tmd_prim.vert2);
     gte_ldv3(&vert0, &vert1, &vert2);
 
     // Rotate, translate, perspective transform
@@ -94,12 +94,83 @@ inline static void GsSortObject4PolyF3(__attribute__((unused)) const GsCOORDINAT
     // Apply the transformed vertices to primitive
     gte_stsxy3_f3(pol3);
 
+    // Apply the transformed color to primitive
+    gte_ncs();
+    gte_strgb(&pol3->r0);
+
+    // For some weird reason, the primitive code is corrupted by GTE writeback. Reinit to workaround.
+    setPolyF3(pol3);
     // Z-Sort into OT
     gte_avsz3();
     long avg_z = 0;
     gte_stotz(&avg_z);
-    const long ot_idx = avg_z >> shift;
-    addPrim((unsigned int *)&otp->org[ot_idx], pol3);
+    const long z = avg_z >> shift;
+    addPrim((unsigned int *)&otp->org[z], pol3);
+}
+
+// Sort an untextured flat quad TMD primitive into the given OT
+inline static void GsSortObject4PolyF4(__attribute__((unused)) const GsCOORDINATE2 *cs, const unsigned long *prim,
+                                       const GsTMDObject *obj, GsOT *otp, __attribute__((unused)) const int shift) {
+    GsTMDPF4 tmd_prim = GsParsePolyF4Primitive(prim);
+#ifdef DEBUG
+    GsDumpTMDPF4(&tmd_prim);
+#endif
+
+    // TODO: Implement polygon division (in scratchpad)
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
+    POLY_F4 *pol4 = (POLY_F4 *)GsGetWorkBase();
+#pragma GCC diagnostic pop
+    setPolyF4(pol4);
+
+    // TODO: Light calc
+    gte_ldrgb(&tmd_prim.r0);
+
+    // Configure GTE
+    MATRIX mtx;
+    SVECTOR rot = {1, 1, 1, 0};
+    RotMatrix(&rot, &mtx);
+    // FIXME: Should probably be based on coord system in relation to world
+    VECTOR pos = {0, 0, 0};
+    TransMatrix(&mtx, &pos);
+    gte_SetRotMatrix(&mtx);
+    gte_SetTransMatrix(&mtx);
+
+    // Load verts into GTE
+    SVECTOR vert0 = GsLookupTmdVert(obj, tmd_prim.vert0);
+    SVECTOR vert1 = GsLookupTmdVert(obj, tmd_prim.vert1);
+    SVECTOR vert2 = GsLookupTmdVert(obj, tmd_prim.vert2);
+    SVECTOR vert3 = GsLookupTmdVert(obj, tmd_prim.vert3);
+    gte_ldv3(&vert0, &vert1, &vert2);
+
+    // Rotate, translate, perspective transform
+    gte_rtpt();
+
+    // Apply the transformed vertices to primitive
+    gte_stsxy3_f3(pol4);
+
+    // For some weird reason, the primitive code is corrupted by GTE writeback. Reinit to workaround.
+    setPolyF4(pol4);
+    // Calculate Z based on first 3 vertices
+    gte_avsz4();
+    long avg_z = 0;
+    gte_stotz(&avg_z);
+    const long z = avg_z >> shift;
+
+    // Process remaining vert
+    gte_ldv0(&vert3);
+    gte_rtps();
+    gte_stsxy(&pol4->x3);
+
+    // Process color
+    gte_ncs();
+    gte_strgb(&pol4->r0);
+
+    // For some weird reason, the primitive code is corrupted by GTE writeback. Reinit to workaround.
+    setPolyF4(pol4);
+
+    addPrim((unsigned int *)&otp->org[z], pol4);
 }
 
 void GsSortObject4(GsDOBJ2 *objp, GsOT *otp, int shift, __attribute__((unused)) unsigned long *scratch) {
@@ -117,6 +188,10 @@ void GsSortObject4(GsDOBJ2 *objp, GsOT *otp, int shift, __attribute__((unused)) 
             case GS_TMD_PRIMITIVE_F3:
                 // Handle untextured flat triangle
                 GsSortObject4PolyF3(objp->coord2, cursor, tmd, otp, shift);
+                break;
+            case GS_TMD_PRIMITIVE_F4:
+                // Handle untextured flat quad
+                GsSortObject4PolyF4(objp->coord2, cursor, tmd, otp, shift);
                 break;
             case GS_TMD_PRIMITIVE_UNKNOWN:
             default:

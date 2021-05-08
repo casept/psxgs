@@ -33,6 +33,12 @@ void GsDumpTMDPF3(const GsTMDPF3 *f3) {
            f3->hdr.flag, f3->hdr.mode);
 }
 
+void GsDumpTMDPF4(const GsTMDPF4 *f4) {
+    // TODO: Other fields
+    printf("[psxgs] GsTMDPF3: {hdr: {olen: %u, ilen: %u, flag: %u, mode: %u}}\n", f4->hdr.olen, f4->hdr.ilen,
+           f4->hdr.flag, f4->hdr.mode);
+}
+
 void GsDumpTMDPacketHeader(const GsTMDPacketHeader *hdr) {
     printf("[psxgs] GsTMDPacketHeader: {hdr: {olen: %u, ilen: %u, flag: %u, mode: %u}}\n", hdr->olen, hdr->ilen,
            hdr->flag, hdr->mode);

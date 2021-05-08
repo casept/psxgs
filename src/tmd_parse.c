@@ -63,6 +63,21 @@ GsTMDPF3 GsParsePolyF3Primitive(const unsigned long *prim_data) {
     return prim;
 }
 
+GsTMDPF4 GsParsePolyF4Primitive(const unsigned long *prim_data) {
+    GsTMDPF4 prim;
+    prim.hdr = GsParseTMDPacketHeader(prim_data[0]);
+    const unsigned long color = prim_data[1];
+    prim.b0 = (color & 0x00FF0000) >> 16;
+    prim.g0 = (color & 0x0000FF00) >> 8;
+    prim.r0 = (color & 0x000000FF);
+    prim.vert0 = (prim_data[2] & 0xFFFF0000) >> 16;
+    prim.norm0 = (prim_data[2] & 0x0000FFFF);
+    prim.vert1 = (prim_data[3] & 0x0000FFFF);
+    prim.vert2 = (prim_data[3] & 0xFFFF0000) >> 16;
+    prim.vert3 = (prim_data[4] & 0xFFFF0000);
+    return prim;
+}
+
 GsTMDPrimitiveKind GsParseTMDPrimitiveKind(const unsigned long *tmd_prim) {
     const GsTMDPacketHeader hdr = GsParseTMDPacketHeader(*tmd_prim);
 #ifdef DEBUG
@@ -74,7 +89,9 @@ GsTMDPrimitiveKind GsParseTMDPrimitiveKind(const unsigned long *tmd_prim) {
     switch (hdr.mode & TMD_HDR_MODE_MASK) {
         case TMD_MODE_POLY:
             if ((hdr.mode & TMD_OPT_QUAD) == TMD_OPT_QUAD) {
-                GsFatal("TMD: quad primitive not implemented");
+                // TODO: Check if flat
+                // TODO: Check if textured etc.
+                return GS_TMD_PRIMITIVE_F4;
             } else {
                 // TODO: Check if flat
                 // TODO: Check if textured etc.
