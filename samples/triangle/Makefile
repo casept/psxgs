@@ -39,7 +39,7 @@ LIBDIRS     += -L$(PSN00B_ROOT)/libpsn00b -L$(PSXGS_ROOT)/lib/
 LIBS        += -lpsxgs -lpsxgpu -lpsxgte -lpsxetc -lpsxapi -lpsxsio -lc
 
 # Compiler flags.
-WARNINGS 	+= -Wall -Wextra -Wpedantic -Werror -Wcast-align -Wcast-qual -Wdisabled-optimization -Wformat=2 -Winit-self -Wlogical-op -Wredundant-decls -Wshadow -Wsign-conversion -Wstrict-overflow=5 -Wswitch-default -Wundef -Werror -Wunreachable-code -Wwrite-strings
+WARNINGS 	+= -Wall -Wextra -Wpedantic -Werror -Wcast-align -Wcast-qual -Wdisabled-optimization -Wformat=2 -Winit-self -Wlogical-op -Wredundant-decls -Wshadow -Wsign-conversion -Wstrict-overflow=5 -Wswitch-default -Wundef -Werror -Wunreachable-code -Wwrite-strings -fanalyzer
 # Flags for debugging.
 DBGFLAGS	+= -g -O0 -DDEBUG
 # Flags for optimized release builds.
