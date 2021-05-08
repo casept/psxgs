@@ -13,8 +13,8 @@ PSXGS_ROOT		= ../..
 
 include $(PSN00B_ROOT)/template/psn00bsdk-setup.mk
 
-TARGET_EXE		= triangle.exe
-TARGET_ELF		= triangle.elf
+TARGET_EXE		= cube.exe
+TARGET_ELF		= cube.elf
 .DEFAULT_GOAL	:= $(TARGET_EXE)
 
 # Some emulators require an ISO to be specified to load an ELF.

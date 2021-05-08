@@ -8,6 +8,6 @@ cd "$DIR"
 make clean
 make -j"$(nproc)"
 
-cd samples/triangle
+cd samples/cube
 make clean
 make -j"$(nproc)"

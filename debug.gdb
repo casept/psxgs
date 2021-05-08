@@ -11,6 +11,6 @@ end
 target remote 127.0.0.1:3333
 set substitute-path . .
 monitor reset shellhalt
-load samples/triangle/triangle.elf
+load samples/cube/cube.elf
 tbreak main
 continue

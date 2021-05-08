@@ -1,7 +1,7 @@
 /*
  * This sample demonstrates how to initialize the library
  * and draw a very simple TMD file
- * consisting of a single 3D object which is just an untextured triangle.
+ * consisting of a single 3D object which is just an untextured cube.
  */
 
 #include <psxgpu.h>
@@ -11,7 +11,7 @@
 
 // Include the data by using the GAS .incbin directive.
 // In a real game, you'd probably want to load from disk instead.
-extern __attribute__((aligned(16))) unsigned long Triangle_tmd[];
+extern __attribute__((aligned(16))) unsigned long Cube_tmd[];
 
 #define MAX_NUM_PACKETS 1024
 // A GPU packet can be up to 24 bytes in size.
@@ -39,8 +39,8 @@ GsOT OT_handles[2];
 // These are the actual table entries. They make up a linked list telling the GPU which primitives to draw when.
 GsOT_TAG OTs[2][OT_SIZE];
 
-// Each 2D or 3D object instantiated by libgs can be interacted with using a handle. This is the handle to our triangle.
-GsDOBJ2 Triangle_handle;
+// Each 2D or 3D object instantiated by libgs can be interacted with using a handle. This is the handle to our cube.
+GsDOBJ2 Cube_handle;
 
 // This is a handle for the libgs viewpoint/camera.
 GsVIEW2 view = {{{{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, {0, 0, 0}}, &WORLD};
@@ -74,11 +74,11 @@ void init_graphics(void) {
     // TODO: GsSetProjection
 
     // Remap the addresses in the TMD to point to where it actually is in process memory.
-    GsMapModelingData(Triangle_tmd);
-    // Link the triangle in the TMD to it's handle so we can manipulate and sort it.
+    GsMapModelingData(Cube_tmd);
+    // Link the cube in the TMD to it's handle so we can manipulate and sort it.
     // The unsigned long argument here is indeed a pointer, but Sony decided for whatever reason to pass it as an
     // integer.
-    GsLinkObject4((unsigned long)Triangle_tmd, &Triangle_handle, 0);
+    GsLinkObject4((unsigned long)Cube_tmd, &Cube_handle, 0);
 }
 
 int main(void) {
@@ -98,9 +98,9 @@ int main(void) {
         // Sort a packet ordering the GPU to clear the screen before doing anything else.
         GsSortClear(0, 0, 0, &OT_handles[back_buffer]);
 
-        // Perform perspective transformations and sort the triangle to the OT.
+        // Perform perspective transformations and sort the cube to the OT.
         // FIXME: Currently, the scratchpad is not used. Fix address once it is.
-        GsSortObject4(&Triangle_handle, &OT_handles[back_buffer], 14 - OT_PRECISION, 0);
+        GsSortObject4(&Cube_handle, &OT_handles[back_buffer], 14 - OT_PRECISION, 0);
 
         // Start drawing the OT to the back buffer. This function runs asynchronously, meaning that it returns before
         // drawing is actually done.

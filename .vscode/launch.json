@@ -5,10 +5,10 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "Triangle",
+			"name": "Cube",
 			"type": "gdb",
 			"request": "launch",
-			"target": "${workspaceRoot}/samples/triangle/triangle.elf",
+			"target": "${workspaceRoot}/samples/cube/cube.elf",
 			"cwd": "${workspaceRoot}",
 			"gdbpath": "mipsel-unknown-elf-gdb",
 			"autorun": [
