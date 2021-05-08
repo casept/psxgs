@@ -1,6 +1,7 @@
 #include <psxgpu.h>
 #include <stdbool.h>
 
+#include "dbg.h"
 #include "functions_pub.h"
 #include "globals_pub.h"
 #include "math.h"
@@ -15,4 +16,9 @@ void GsClearOT(unsigned short offset, unsigned short point, GsOT* otp) {
     otp->tag = otp->org + (actual_length - 1);
 }
 
-void GsDrawOT(GsOT* ot) { DrawOTag((unsigned int*)ot->tag); }
+void GsDrawOT(GsOT* ot) {
+#ifdef DEBUG
+    GsDumpOT(ot);
+#endif
+    DrawOTag((unsigned int*)ot->tag);
+}

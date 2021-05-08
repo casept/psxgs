@@ -21,4 +21,6 @@ void GsDumpTMDPF3(const GsTMDPF3 *f3);
 // Print the data structure to stdout
 void GsDumpTMDPacketHeader(const GsTMDPacketHeader *hdr);
 
+// Print the OT to stdout
+void GsDumpOT(const GsOT *ot);
 #endif
