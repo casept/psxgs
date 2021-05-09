@@ -35,7 +35,7 @@ void GsDumpTMDPF3(const GsTMDPF3 *f3) {
 
 void GsDumpTMDPF4(const GsTMDPF4 *f4) {
     // TODO: Other fields
-    printf("[psxgs] GsTMDPF3: {hdr: {olen: %u, ilen: %u, flag: %u, mode: %u}}\n", f4->hdr.olen, f4->hdr.ilen,
+    printf("[psxgs] GsTMDPF4: {hdr: {olen: %u, ilen: %u, flag: %u, mode: %u}}\n", f4->hdr.olen, f4->hdr.ilen,
            f4->hdr.flag, f4->hdr.mode);
 }
 

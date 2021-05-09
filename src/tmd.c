@@ -13,12 +13,6 @@
 
 #define TMD_HDR_FLAG_REMAP_BIT 0x00000001
 
-#define TMD_HDR_MODE_MASK 0xE0  // 0b11100000
-#define TMD_MODE_POLY     0x20  // 0b00100000
-#define TMD_MODE_LINE     0x40  // 0b01000000
-#define TMD_MODE_SPRT     0x60  // 0b01100000
-#define TMD_OPT_QUAD      0x8   // 0b00001000
-
 void GsMapModelingData(unsigned long *p) {
     GsTMDHeader *hdr = (GsTMDHeader *)p;
     // Are the addresses in need of remap?
@@ -142,16 +136,15 @@ inline static void GsSortObject4PolyF4(__attribute__((unused)) const GsCOORDINAT
     SVECTOR vert1 = GsLookupTmdVert(obj, tmd_prim.vert1);
     SVECTOR vert2 = GsLookupTmdVert(obj, tmd_prim.vert2);
     SVECTOR vert3 = GsLookupTmdVert(obj, tmd_prim.vert3);
+    SVECTOR norm0 = GsLookupTmdNorm(obj, tmd_prim.norm0);
     gte_ldv3(&vert0, &vert1, &vert2);
 
     // Rotate, translate, perspective transform
     gte_rtpt();
 
     // Apply the transformed vertices to primitive
-    gte_stsxy3_f3(pol4);
+    gte_stsxy3_f4(pol4);
 
-    // For some weird reason, the primitive code is corrupted by GTE writeback. Reinit to workaround.
-    setPolyF4(pol4);
     // Calculate Z based on first 3 vertices
     gte_avsz4();
     long avg_z = 0;
@@ -164,6 +157,7 @@ inline static void GsSortObject4PolyF4(__attribute__((unused)) const GsCOORDINAT
     gte_stsxy(&pol4->x3);
 
     // Process color
+    gte_ldv0(&norm0);
     gte_ncs();
     gte_strgb(&pol4->r0);
 

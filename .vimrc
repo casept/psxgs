@@ -1,8 +1,8 @@
 let termdebugger="mipsel-unknown-elf-gdb"
 
-function DebugTriangleFunc()
+function DebugCubeFunc()
 	Termdebug
-	source "samples/triangle/triangle.gdb"
+	source "samples/cube/cube.gdb"
 endfunction
 
-command DebugTriangle call DebugTriangleFunc()
+command DebugCube call DebugCubeFunc()
