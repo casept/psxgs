@@ -76,19 +76,26 @@ inline static void GsSortObject4PolyF3(__attribute__((unused)) const GsCOORDINAT
     gte_SetRotMatrix(&mtx);
     gte_SetTransMatrix(&mtx);
 
-    // Load verts into GTE
+    // Load verts
     SVECTOR vert0 = GsLookupTmdVert(obj, tmd_prim.vert0);
     SVECTOR vert1 = GsLookupTmdVert(obj, tmd_prim.vert1);
     SVECTOR vert2 = GsLookupTmdVert(obj, tmd_prim.vert2);
-    gte_ldv3(&vert0, &vert1, &vert2);
+    const SVECTOR norm0 = GsLookupTmdNorm(obj, tmd_prim.norm0);
 
+    // Scale them
+    GsScaleTmdVert(&vert0, obj->scale);
+    GsScaleTmdVert(&vert1, obj->scale);
+    GsScaleTmdVert(&vert2, obj->scale);
+
+    // Process them in GTE
+    gte_ldv3(&vert0, &vert1, &vert2);
     // Rotate, translate, perspective transform
     gte_rtpt();
-
     // Apply the transformed vertices to primitive
     gte_stsxy3_f3(pol3);
 
     // Apply the transformed color to primitive
+    gte_ldv0(&norm0);
     gte_ncs();
     gte_strgb(&pol3->r0);
 
@@ -131,12 +138,19 @@ inline static void GsSortObject4PolyF4(__attribute__((unused)) const GsCOORDINAT
     gte_SetRotMatrix(&mtx);
     gte_SetTransMatrix(&mtx);
 
-    // Load verts into GTE
+    // Load verts
     SVECTOR vert0 = GsLookupTmdVert(obj, tmd_prim.vert0);
     SVECTOR vert1 = GsLookupTmdVert(obj, tmd_prim.vert1);
     SVECTOR vert2 = GsLookupTmdVert(obj, tmd_prim.vert2);
     SVECTOR vert3 = GsLookupTmdVert(obj, tmd_prim.vert3);
-    SVECTOR norm0 = GsLookupTmdNorm(obj, tmd_prim.norm0);
+    const SVECTOR norm0 = GsLookupTmdNorm(obj, tmd_prim.norm0);
+
+    // Scale them
+    GsScaleTmdVert(&vert0, obj->scale);
+    GsScaleTmdVert(&vert1, obj->scale);
+    GsScaleTmdVert(&vert2, obj->scale);
+    GsScaleTmdVert(&vert3, obj->scale);
+
     gte_ldv3(&vert0, &vert1, &vert2);
 
     // Rotate, translate, perspective transform
@@ -195,5 +209,17 @@ void GsSortObject4(GsDOBJ2 *objp, GsOT *otp, int shift, __attribute__((unused)) 
         // Advance the cursor to the next primitive
         const GsTMDPacketHeader hdr = GsParseTMDPacketHeader(*cursor);
         cursor += (hdr.ilen + 1);  // +1 because ilen does not include the header.
+    }
+}
+
+void GsScaleTmdVert(SVECTOR *vert, const long scale) {
+    if (scale > 0) {
+        vert->vx = vert->vx << scale;
+        vert->vy = vert->vy << scale;
+        vert->vz = vert->vz << scale;
+    } else if (scale < 0) {
+        vert->vx = vert->vx >> GsAbsLong(scale);
+        vert->vy = vert->vy >> GsAbsLong(scale);
+        vert->vz = vert->vz >> GsAbsLong(scale);
     }
 }

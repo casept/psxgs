@@ -14,6 +14,13 @@ void GsFatal(const char *msg) {
     while (true) {
     }
 }
+
+void GsAssert(const int e) {
+    if (!e) {
+        GsFatal("assertion failed");
+    }
+}
+
 /*
  * Pretty-print various data types
  */

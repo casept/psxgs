@@ -23,3 +23,10 @@ long GsLpow(long base, long exp) {
     }
     return result;
 }
+
+long GsAbsLong(long x) {
+    // Assumes 32-bit long (is the case on PSX)
+    long mask = x >> 31;
+    x = mask ^ x;
+    return (mask ^ x) - mask;
+}

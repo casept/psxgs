@@ -26,7 +26,7 @@ typedef struct {
     unsigned long *primtop;
     // Number of TMD primitive packets
     unsigned long primn;
-    // Object scale (<0 scale down, >0 scale up). Not implemented because Sony never implemented it.
+    // Object scaler (see Sony doc for details).
     long scale;
 } GsTMDObject;
 
@@ -106,6 +106,8 @@ GsTMDObject *GsLookupTmdObj(const unsigned long *tmd, const size_t n);
 SVECTOR GsLookupTmdVert(const GsTMDObject *obj, const size_t n);
 // Return the nth normal of the given TMD object.
 SVECTOR GsLookupTmdNorm(const GsTMDObject *obj, const size_t n);
+// Scale the given vector according to the TMD format's scale field.
+void GsScaleTmdVert(SVECTOR *vert, const long scale);
 // Parse header of a TMD primitive packet.
 GsTMDPacketHeader GsParseTMDPacketHeader(const unsigned long hdr_int);
 // Parse an untextured triangle TMD primitive.

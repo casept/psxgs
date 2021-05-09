@@ -6,8 +6,11 @@
 #include "tmd.h"
 #include "types_pub.h"
 
-// Print the given string and terminate.
+// Print the given string and terminate
 void GsFatal(const char *msg);
+
+// Terminate if the given condition fails
+void GsAssert(const int e);
 
 // Print the data structure to stdout
 void GsDumpTMDStruct(const GsTMDObject *t);
