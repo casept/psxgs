@@ -29,7 +29,7 @@ extern PACKET* GsOUT_PACKET_P;
 // First currently free space in the GPU packet storage area
 extern PACKET* GsOUT_PACKET_CURSOR;
 
-// The top-level coordinate system. All other coordinate systems must have this as their indirect superior.
+// The top-level coordinate system. All other coordinate systems must have this as their (indirect) superior.
 extern GsCOORDINATE2 WORLD;
 // World-to-screen matrix used by default
 extern MATRIX GsWSMATRIX;

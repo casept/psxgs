@@ -53,4 +53,7 @@ void GsInitCoordinate2(GsCOORDINATE2 *super, GsCOORDINATE2 *base);
  */
 int GsSetView2(GsVIEW2 *pv);
 
+// Set the distance between the projection plane and observer. Effectively FOV.
+void GsSetProjection(unsigned long h);
+
 #endif

@@ -1,3 +1,4 @@
+#include <inline_c.h>
 #include <psxgpu.h>
 
 #include "functions_pub.h"
@@ -36,3 +37,5 @@ void GsSwapDispBuffer(void) {
 }
 
 int GsGetActiveBuffer(void) { return (int)PSDIDX; }
+
+void GsSetProjection(unsigned long h) { gte_SetGeomScreen((long)h); }

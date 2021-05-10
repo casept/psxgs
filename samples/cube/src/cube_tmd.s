@@ -1,5 +1,5 @@
 .section .data
-.global Cube_tmd
+.global Cube_Tmd
 .balign 16
-Cube_tmd:
+Cube_Tmd:
 	.incbin "cube.tmd"

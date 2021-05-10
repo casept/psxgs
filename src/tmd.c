@@ -63,9 +63,6 @@ inline static void GsSortObject4PolyF3(__attribute__((unused)) const GsCOORDINAT
 #pragma GCC diagnostic pop
     setPolyF3(pol3);
 
-    // TODO: Light calc
-    gte_ldrgb(&tmd_prim.r0);
-
     // Configure GTE
     MATRIX mtx;
     SVECTOR rot = {1, 1, 1, 0};
@@ -95,6 +92,7 @@ inline static void GsSortObject4PolyF3(__attribute__((unused)) const GsCOORDINAT
     gte_stsxy3_f3(pol3);
 
     // Apply the transformed color to primitive
+    gte_ldrgb(&tmd_prim.r0);
     gte_ldv0(&norm0);
     gte_ncs();
     gte_strgb(&pol3->r0);
@@ -125,16 +123,11 @@ inline static void GsSortObject4PolyF4(__attribute__((unused)) const GsCOORDINAT
 #pragma GCC diagnostic pop
     setPolyF4(pol4);
 
-    // TODO: Light calc
-    gte_ldrgb(&tmd_prim.r0);
-
     // Configure GTE
-    MATRIX mtx;
+    MATRIX mtx;  // The "accumulator" matrix.
+    // TODO: This should probably be set externally by the user
     SVECTOR rot = {1, 1, 1, 0};
     RotMatrix(&rot, &mtx);
-    // FIXME: Should probably be based on coord system in relation to world
-    VECTOR pos = {0, 0, 0};
-    TransMatrix(&mtx, &pos);
     gte_SetRotMatrix(&mtx);
     gte_SetTransMatrix(&mtx);
 
@@ -171,6 +164,7 @@ inline static void GsSortObject4PolyF4(__attribute__((unused)) const GsCOORDINAT
     gte_stsxy(&pol4->x3);
 
     // Process color
+    gte_ldrgb(&tmd_prim.r0);
     gte_ldv0(&norm0);
     gte_ncs();
     gte_strgb(&pol4->r0);
@@ -199,6 +193,7 @@ void GsSortObject4(GsDOBJ2 *objp, GsOT *otp, int shift, __attribute__((unused)) 
                 break;
             case GS_TMD_PRIMITIVE_F4:
                 // Handle untextured flat quad
+                tmd->scale = 4;  // TODO: remove
                 GsSortObject4PolyF4(objp->coord2, cursor, tmd, otp, shift);
                 break;
             case GS_TMD_PRIMITIVE_UNKNOWN:
@@ -212,7 +207,7 @@ void GsSortObject4(GsDOBJ2 *objp, GsOT *otp, int shift, __attribute__((unused)) 
     }
 }
 
-void GsScaleTmdVert(SVECTOR *vert, const long scale) {
+inline void GsScaleTmdVert(SVECTOR *vert, const long scale) {
     if (scale > 0) {
         vert->vx = vert->vx << scale;
         vert->vy = vert->vy << scale;
