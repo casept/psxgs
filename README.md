@@ -8,7 +8,8 @@ Once reasonably complete, I hope to merge it into [Psn00bSDK](https://github.com
 
 ## Building
 
-Follow the Psn00bSDK guide to obtain a toolchain and build the SDK, then run `make` in the directory you cloned `psxgs` into.
+1. Obtain a cross-compiler which supports at least C11. I'm using one built using [crosstool-ng](https://crosstool-ng.github.io/) at commit `bbb0db2880d5e7600e176fc8025f0add9ef85eb9`. Simply follow the instructions on the crosstool-ng site to build and install it, then do `cp mipsel-sony-none.config .config` and `ct-ng build`. Copy the resulting toolchain to `toolchains/`.
+2. Follow the Psn00bSDK guide to build and install the SDK, then run `make` in the directory you cloned `psxgs` into.
 
 ### Building samples
 
